@@ -34,11 +34,11 @@ Coverly is a user-friendly web application designed to streamline the process of
 
 ## Technology Stack
 
-- **Frontend:** React.js for building the user interface.
+- **Frontend:** Vue.js for building the user interface.
 - **Backend:** Node.js and Express for server-side logic.
-- **Database:** MongoDB for storing user data and generated cover letters.
+- **Database:** ? for storing user data and generated cover letters.
 - **AI Integration:** OpenAI's GPT for generating cover letter content.
-- **Hosting:** AWS for reliable and scalable hosting solutions.
+- **Hosting:** ? for reliable and scalable hosting solutions.
 
 ## Milestones
 
