@@ -1,95 +1,32 @@
-import { Router, Request, Response } from "express";
-import { check, validationResult } from "express-validator";
+import { Router } from "express";
 import cookieParser from "cookie-parser";
-import { v4 as uuidv4 } from "uuid"; // To generate unique session IDs
+import {
+  home,
+  register,
+  registerValidation,
+} from "../controllers/homeContoller";
+import oAiRoutes from "./oAiRoutes";
+import { isAuthenticated } from "../middleware/authMiddleware";
+import { errorHandler } from "../middleware/errorHandler";
+import { logger } from "../middleware/loggerMiddleware";
+import { validateRequest } from "../middleware/validationMiddleware";
 
 const router = Router();
 
-// Middleware to parse cookies
+// Use middleware
 router.use(cookieParser());
+router.use(logger); // Log requests
 
-// Function to generate a unique session ID or token
-const generateSessionToken = (): string => {
-  return uuidv4();
-};
+// Define the home route
+router.get("/", home);
 
-// Home page route that generates a session token
-router.get("/", (req: Request, res: Response) => {
-  // Check if the session cookie is already set
-  if (!req.cookies || !req.cookies.sessionToken) {
-    // Generate a session tokenf
-    const sessionToken = generateSessionToken();
+// Define the register route with validation
+router.post("/register", registerValidation, validateRequest, register);
 
-    // Set the cookie (expires in 24 hours)
-    res.cookie("sessionToken", sessionToken, {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: true, // Accessible only by the web server
-      secure: process.env.NODE_ENV === "production", // Set to true if using HTTPS
-    });
+// Add the OpenAI routes
+router.use("/openai", oAiRoutes);
 
-    return res
-      .status(200)
-      .json({ message: "Welcome! Cookie has been set", sessionToken });
-  }
-
-  res
-    .status(200)
-    .json({ message: "Welcome back!", sessionToken: req.cookies.sessionToken });
-});
-
-router.post(
-  "/register",
-  [
-    check("username")
-      .isString()
-      .trim()
-      .notEmpty()
-      .withMessage("Username is required")
-      .isLength({ min: 3 })
-      .withMessage("Username must be at least 3 characters long"),
-    check("email")
-      .isEmail()
-      .withMessage("Please provide a valid email address"),
-    check("age")
-      .optional()
-      .isInt({ min: 1 })
-      .withMessage("Age must be a positive integer"),
-    check("password")
-      .isString()
-      .trim()
-      .notEmpty()
-      .withMessage("Password is required")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters long"),
-    check("confirmPassword")
-      .isString()
-      .trim()
-      .notEmpty()
-      .withMessage("Confirm Password is required")
-      .custom((value, { req }) => {
-        if (value !== req.body.password) {
-          throw new Error("Passwords do not match");
-        }
-        return true;
-      }),
-  ],
-  (req: Request, res: Response) => {
-    // Handle validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    // Process the validated data
-    const { username, email, age, password } = req.body;
-
-    // TODO: add database logic here
-
-    res.status(200).json({
-      message: "Registration successful",
-      data: { username, email, age, password },
-    });
-  }
-);
+// Error handling middleware
+router.use(errorHandler);
 
 export default router;
