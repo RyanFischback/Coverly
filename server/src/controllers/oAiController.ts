@@ -24,6 +24,19 @@ export const getOAIResult = async (req: Request, res: Response) => {
     // Combine the fields into a single message
     const combinedContent = `Please take the following job posting:\n${jobPosting}\n\n and write me a meaningful cover letter with the following information:\n${userInfo}`;
 
+    if (
+      !combinedContent.toLowerCase().includes("responsibilities") &&
+      !combinedContent.toLowerCase().includes("requirements") &&
+      !combinedContent.toLowerCase().includes("experience") &&
+      !combinedContent.toLowerCase().includes("education") &&
+      !combinedContent.toLowerCase().includes("skills") &&
+      !combinedContent.toLowerCase().includes("qualifications")
+    ) {
+      return res.status(400).json({
+        error: "Please enter a valid job posting and resume",
+      });
+    }
+
     // Make the API call to OpenAI
     const request = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -35,7 +48,7 @@ export const getOAIResult = async (req: Request, res: Response) => {
         },
         { role: "user", content: combinedContent }, // Use the combined content
       ],
-      max_tokens: 3000,
+      max_tokens: 2500,
     });
 
     res.json(request.choices[0].message.content);

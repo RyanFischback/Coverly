@@ -28,14 +28,15 @@
       <!-- Submit Button -->
       <button
         type="submit"
-        :disabled="!isFormValid"
+        :disabled="!isFormValid || loading"
         :title="
           !isFormValid
             ? 'Please fill out both fields to enable the submit button.'
             : ''
         "
       >
-        Submit
+        <span v-if="loading" class="spinner"></span>
+        <span v-else>Submit</span>
       </button>
     </form>
 
@@ -43,12 +44,17 @@
     <div v-if="apiResult" class="api-result-window">
       <div class="window-header">
         <span>API Result</span>
-        <span class="copy-content" @click="copyToClipboard">
-          <i class="copy-icon">📋 Copy</i>
-        </span>
+        <div class="header-buttons">
+          <span class="copy-content" @click="copyToClipboard">
+            <i class="copy-icon">📋 Copy</i>
+          </span>
+          <span class="export-content" @click="exportToPDF">
+            <i class="export-icon">📄 Export to PDF</i>
+          </span>
+        </div>
       </div>
       <div class="window-body">
-        <p>{{ apiResult }}</p>
+        <div v-html="apiResult" class="formatted-result"></div>
       </div>
     </div>
   </div>
@@ -57,6 +63,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import axios from "axios";
+import jsPDF from "jspdf";
 
 // Define data objects for job posting and user information
 const jobPosting = ref<string>("");
@@ -65,12 +72,16 @@ const userInfo = ref<string>("");
 // Define the API result
 const apiResult = ref<string>("");
 
+// Define the loading state
+const loading = ref<boolean>(false);
+
 // Computed property to check if both fields are filled
 const isFormValid = computed(() => {
   return jobPosting.value.trim() !== "" && userInfo.value.trim() !== "";
 });
 
 const fetchOAIResult = async () => {
+  loading.value = true; // Start loading
   try {
     const response = await axios.post(
       "http://localhost:3000/api/openai/fetch",
@@ -80,21 +91,42 @@ const fetchOAIResult = async () => {
       }
     );
 
+    // Handle rate limit headers if available
+    const rateLimitReset = response.headers["x-ratelimit-reset"];
+    if (rateLimitReset) {
+      const resetTime = parseInt(rateLimitReset, 10) * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+      const timeUntilReset = resetTime - currentTime;
+      if (timeUntilReset > 0) {
+        console.log(
+          `Rate limit exceeded. Please wait ${Math.ceil(
+            timeUntilReset / 1000
+          )} seconds.`
+        );
+        return; // Prevent further requests until the limit resets
+      }
+    }
+
     if (response.status !== 200) {
       throw new Error(response.statusText);
     }
 
     apiResult.value = response.data; // Adjust according to your API response structure
+    console.log(response.data);
   } catch (error) {
     console.error("Error fetching result:", error);
 
-    if (error.response) {
-      apiResult.value = `Error: ${
-        error.response.data.message || "An error occurred"
-      }`;
+    if (error.response && error.response.status === 429) {
+      const retryAfter = error.response.headers["retry-after"];
+      const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000; // Fallback to 1 minute
+      alert(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} `);
+    } else if (error.response.status === 400) {
+      alert(`Error fetching result: ${error.response.data.error}`);
     } else {
-      apiResult.value = `Error: ${error.message || "An error occurred"}`;
+      alert("An unexpected error occured");
     }
+  } finally {
+    loading.value = false; // End loading
   }
 };
 
@@ -117,9 +149,33 @@ const copyToClipboard = async () => {
     alert("Failed to copy to clipboard.");
   }
 };
+
+const exportToPDF = async () => {
+  if (apiResult.value) {
+    const doc = new jsPDF();
+
+    // Set font size and style
+    doc.setFontSize(12);
+    doc.setFont("Helvetica", "normal");
+
+    // Split the text into lines to fit within the PDF width
+    const margin = 10;
+    const pageWidth = doc.internal.pageSize.width;
+    const lineWidth = pageWidth - 2 * margin;
+    const lines = doc.splitTextToSize(apiResult.value, lineWidth);
+
+    // Add text to the PDF document
+    doc.text(lines, margin, margin + 16); // Adjust the vertical positioning as needed
+
+    doc.save("cover-letter.pdf");
+  } else {
+    alert("No content to export!");
+  }
+};
 </script>
 
 <style scoped>
+/* General styles for demo page */
 .demo-page {
   padding: 20px;
   display: flex;
@@ -161,6 +217,7 @@ const copyToClipboard = async () => {
   border-radius: 4px;
   font-size: 1.2em;
   transition: background-color 0.3s;
+  position: relative;
 }
 
 .demo-page button:disabled {
@@ -170,6 +227,27 @@ const copyToClipboard = async () => {
 
 .demo-page button:hover:not(:disabled) {
   background-color: #e64a19;
+}
+
+/* Spinner styling */
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #ffffff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Window styling */
@@ -184,7 +262,7 @@ const copyToClipboard = async () => {
 }
 
 .window-header {
-  background-color: var(--background-color-dark);
+  background-color: var(--background-color);
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -193,11 +271,14 @@ const copyToClipboard = async () => {
   font-weight: bold;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 15px; /* Space between the buttons */
+}
+
 .window-header .copy-content {
   cursor: pointer;
   color: #007bff;
-  display: flex;
-  align-items: center;
 }
 
 .window-header .copy-content:hover {
@@ -208,9 +289,27 @@ const copyToClipboard = async () => {
   margin-right: 5px;
 }
 
+.window-header .export-content {
+  cursor: pointer;
+  color: #007bff;
+}
+
+.window-header .export-content:hover {
+  text-decoration: underline;
+}
+
+.export-icon {
+  margin-right: 5px;
+}
+
 .window-body {
   padding: 15px;
-  background-color: var(--background-color-dark);
+  background-color: var(--background-color);
   text-align: left;
+}
+
+.formatted-result {
+  white-space: pre-wrap; /* Ensures whitespace and line breaks are preserved */
+  font-family: "Courier New", Courier, monospace; /* Monospaced font for better alignment */
 }
 </style>
