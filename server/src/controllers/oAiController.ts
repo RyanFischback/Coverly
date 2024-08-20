@@ -39,8 +39,11 @@ export const getOAIResult = async (req: Request, res: Response) => {
     });
 
     res.json(request.choices[0].message.content);
-  } catch (error) {
-    console.error("Error in getOAIResult:", error);
-    res.status(500).json({ error: `Failed to send message ${error}` });
+  } catch (error: any) {
+    if (error.status === 429) {
+      res.status(429).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "An unexpected error occurred" });
+    }
   }
 };

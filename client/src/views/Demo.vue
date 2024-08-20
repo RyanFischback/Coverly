@@ -79,10 +79,22 @@ const fetchOAIResult = async () => {
         userInfo: sanitizeInput(userInfo.value),
       }
     );
+
+    if (response.status !== 200) {
+      throw new Error(response.statusText);
+    }
+
     apiResult.value = response.data; // Adjust according to your API response structure
   } catch (error) {
     console.error("Error fetching result:", error);
-    apiResult.value = "Error fetching result";
+
+    if (error.response) {
+      apiResult.value = `Error: ${
+        error.response.data.message || "An error occurred"
+      }`;
+    } else {
+      apiResult.value = `Error: ${error.message || "An error occurred"}`;
+    }
   }
 };
 

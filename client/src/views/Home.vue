@@ -70,14 +70,14 @@ const sendMessage = async () => {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to send message");
+      throw new Error(response.statusText);
     }
 
     const data = await response.json();
     alert(data.success);
   } catch (error) {
     console.error("Error sending message:", error);
-    alert("Failed to send message");
+    alert(error);
   }
 };
 </script>
