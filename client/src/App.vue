@@ -22,23 +22,25 @@ watchEffect(() => {
     <!-- Header Section -->
     <header>
       <div class="container">
-        <h1>Coverly</h1>
+        <!-- Wrap h1 in router-link -->
+        <router-link to="/" class="logo-link">
+          <h1>Coverly</h1>
+        </router-link>
         <nav>
-          <router-link to="/">Home</router-link>
-          <!-- <router-link to="/about">About</router-link> -->
-          <!-- <router-link to="/services">Services</router-link> -->
-          <!-- <router-link to="/contact">Contact</router-link> -->
-          <router-link to="/demo">Demo</router-link>
-          <!-- Toggle Slider -->
-          <div class="slider-container">
-            <label class="switch">
-              <input
-                type="checkbox"
-                :checked="isDarkMode"
-                @change="toggleDarkMode"
-              />
-              <span class="slider"></span>
-            </label>
+          <div class="nav-links">
+            <router-link to="/">Home</router-link>
+            <router-link to="/about">About</router-link>
+            <router-link to="/demo">Demo</router-link>
+            <div class="slider-container">
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  :checked="isDarkMode"
+                  @change="toggleDarkMode"
+                />
+                <span class="slider"></span>
+              </label>
+            </div>
           </div>
         </nav>
       </div>
@@ -91,7 +93,7 @@ body.dark-mode {
   --button-background-hover: #009688;
   --header-background: var(--header-background);
   --footer-background: var(--footer-background);
-  --hero-background: #003d80;
+  --hero-background: #2e3138;
   --section-background: #333333;
 }
 
@@ -119,18 +121,27 @@ header h1 {
   margin: 0;
   color: var(--text-color);
   font-size: 2em;
+  cursor: pointer; /* Indicate clickable element */
+}
+
+.logo-link {
+  text-decoration: none; /* Remove default link underline */
 }
 
 nav {
+  flex: 1;
+}
+
+.nav-links {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* Align items to the far right */
   align-items: center;
 }
 
 nav a {
   color: var(--text-color);
   text-decoration: none;
-  margin: 0 15px;
+  margin-left: 20px;
   font-size: 1.1em;
 }
 
@@ -276,8 +287,7 @@ footer p {
 
 /* Slider Styles */
 .slider-container {
-  display: flex;
-  align-items: center;
+  margin-left: 20px;
 }
 
 .switch {
