@@ -15,7 +15,7 @@
 
       <!-- User Information Section -->
       <div class="section">
-        <h2>User Information</h2>
+        <h2>Candidate Information</h2>
         <label for="userInfo">Enter your qualifications:</label>
         <textarea
           id="userInfo"

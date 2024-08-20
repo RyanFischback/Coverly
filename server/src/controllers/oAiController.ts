@@ -41,8 +41,6 @@ export const getOAIResult = async (req: Request, res: Response) => {
     res.json(request.choices[0].message.content);
   } catch (error) {
     console.error("Error in getOAIResult:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request" });
+    res.status(500).json({ error: `Failed to send message ${error}` });
   }
 };
