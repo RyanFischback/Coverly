@@ -1,37 +1,38 @@
-import { Request, Response } from "express";
-import axios from "axios";
-
-// Ensure to load environment variables from .env file
+import OpenAI from "openai";
 import dotenv from "dotenv";
+import { Request, Response } from "express";
+
 dotenv.config();
+const openai = new OpenAI({
+  organization: "org-qOo3S3vv5AmPTFQe1qs4OaJz",
+  project: process.env.PROJECT_ID,
+});
 
-// Example function to handle requests to OpenAI API
-export const handleOpenAIRequest = async (req: Request, res: Response) => {
+export const getOAIResult = async (req: Request, res: Response) => {
   try {
-    const { input } = req.body;
+    // Extract content from the request body
+    const userContent = req.body.content;
 
-    // Check if the OpenAI API key is available
-    const apiKey = process.env.OPEN_AI_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "API key is not configured" });
+    // Validate input
+    if (!userContent) {
+      return res.status(400).json({ error: "Content is required" });
     }
 
-    // Example OpenAI API request
-    const response = await axios.post(
-      "https://api.openai.com/v1/engines/davinci-codex/completions",
-      {
-        prompt: input,
-        max_tokens: 50,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-      }
-    );
+    // Make the API call to OpenAI
+    const request = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: userContent }, // Use the user-provided content
+      ],
+      max_tokens: 2000,
+    });
 
-    res.status(200).json(response.data);
+    res.json(request.choices[0].message.content);
   } catch (error) {
-    res.status(500).json({ error: "Failed to communicate with OpenAI API" });
+    console.error("Error in getOAIResult:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request" });
   }
 };
