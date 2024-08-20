@@ -13,7 +13,7 @@
       </section>
       <section class="contact">
         <div class="container">
-          <h2>Contact Us</h2>
+          <h2>Contact Me</h2>
           <p>
             Reach out to us for any inquiries or feedback, this app is meant to
             help make your life easier!
