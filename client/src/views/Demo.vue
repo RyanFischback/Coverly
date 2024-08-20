@@ -43,7 +43,7 @@
     <!-- Display the result in a stylized "window" -->
     <div v-if="apiResult" class="api-result-window">
       <div class="window-header">
-        <span>API Result</span>
+        <span>Result</span>
         <div class="header-buttons">
           <span class="copy-content" @click="copyToClipboard">
             <i class="copy-icon">📋 Copy</i>
