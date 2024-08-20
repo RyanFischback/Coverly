@@ -59,9 +59,11 @@ const form = ref({
   message: "",
 });
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const sendMessage = async () => {
   try {
-    const response = await fetch("http://localhost:3000/api/contact/send", {
+    const response = await fetch(`${apiUrl}/api/contact/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

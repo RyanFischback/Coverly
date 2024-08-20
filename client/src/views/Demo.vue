@@ -75,6 +75,8 @@ const apiResult = ref<string>("");
 // Define the loading state
 const loading = ref<boolean>(false);
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 // Computed property to check if both fields are filled
 const isFormValid = computed(() => {
   return jobPosting.value.trim() !== "" && userInfo.value.trim() !== "";
@@ -83,13 +85,10 @@ const isFormValid = computed(() => {
 const fetchOAIResult = async () => {
   loading.value = true; // Start loading
   try {
-    const response = await axios.post(
-      "http://localhost:3000/api/openai/fetch",
-      {
-        jobPosting: sanitizeInput(jobPosting.value),
-        userInfo: sanitizeInput(userInfo.value),
-      }
-    );
+    const response = await axios.post(`${apiUrl}/api/openai/fetch`, {
+      jobPosting: sanitizeInput(jobPosting.value),
+      userInfo: sanitizeInput(userInfo.value),
+    });
 
     // Handle rate limit headers if available
     const rateLimitReset = response.headers["x-ratelimit-reset"];
