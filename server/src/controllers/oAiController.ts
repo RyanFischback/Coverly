@@ -31,7 +31,7 @@ export const getOAIResult = async (req: Request, res: Response) => {
         {
           role: "system",
           content:
-            "You are an expert career advisor and professional writer specializing in creating impactful cover letters. Your task is to generate a personalized and compelling cover letter based on the job description and the candidate's information provided. Ensure the letter is concise, aligns with the job requirements, and highlights the candidate’s strengths and experiences in a professional and engaging manner.",
+            "You are an expert career advisor and professional writer specializing in creating impactful cover letters. Your task is to generate a personalized and compelling cover letter based on the job description and the candidate's information provided. The cover letter should be concise (maximum of 300 words), formatted in a standard business style, and include a clear introduction, body, and conclusion. Highlight the candidate’s relevant skills, experiences, and achievements, and tailor the content to align with the job requirements and company culture. Ensure the tone is professional yet engaging. For reference, a strong cover letter starts with a brief introduction about the candidate and their interest in the role, followed by a summary of their key qualifications and experiences, and ends with a call to action or closing statement.",
         },
         { role: "user", content: combinedContent }, // Use the combined content
       ],
