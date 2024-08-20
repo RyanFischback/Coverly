@@ -12,20 +12,27 @@
       <button type="submit">Submit</button>
     </form>
 
-    <!-- Display the result -->
-    <div v-if="apiResult">
-      <h2>API Result:</h2>
-      <p>{{ apiResult }}</p>
+    <!-- Display the result in a stylized "window" -->
+    <div v-if="apiResult" class="api-result-window">
+      <div class="window-header">
+        <span>API Result</span>
+        <span class="copy-content" @click="copyToClipboard">
+          <i class="copy-icon">📋 Copy</i>
+        </span>
+      </div>
+      <div class="window-body">
+        <p>{{ apiResult }}</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import axios from "axios"; // Ensure axios is installed and imported
+import axios from "axios";
 
-const userInput = ref("");
-const apiResult = ref("");
+const userInput = ref<string>("");
+const apiResult = ref<string>("");
 
 const fetchOAIResult = async () => {
   try {
@@ -35,10 +42,25 @@ const fetchOAIResult = async () => {
         content: userInput.value,
       }
     );
-    apiResult.value = response.data.result; // Adjust according to your API response structure
+    apiResult.value = response.data; // Adjust according to your API response structure
   } catch (error) {
     console.error("Error fetching result:", error);
     apiResult.value = "Error fetching result";
+  }
+};
+
+const copyToClipboard = async () => {
+  try {
+    if (apiResult.value) {
+      // Copy the API result to the clipboard
+      await navigator.clipboard.writeText(apiResult.value);
+      alert("API result copied to clipboard!");
+    } else {
+      alert("Nothing to copy!");
+    }
+  } catch (err) {
+    console.error("Failed to copy to clipboard: ", err);
+    alert("Failed to copy to clipboard.");
   }
 };
 </script>
@@ -46,11 +68,9 @@ const fetchOAIResult = async () => {
 <style scoped>
 .demo-page {
   padding: 20px;
-}
-
-.demo-page h1 {
-  font-size: 2em;
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .demo-page form {
@@ -58,6 +78,7 @@ const fetchOAIResult = async () => {
   flex-direction: column;
   max-width: 500px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .demo-page label {
@@ -85,7 +106,45 @@ const fetchOAIResult = async () => {
   background-color: #e64a19;
 }
 
-.demo-page .api-result {
+/* Window styling */
+.api-result-window {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 500px;
+  width: 100%;
   margin-top: 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.window-header {
+  background-color: var(--background-color-dark);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+.window-header .copy-content {
+  cursor: pointer;
+  color: #007bff;
+  display: flex;
+  align-items: center;
+}
+
+.window-header .copy-content:hover {
+  text-decoration: underline;
+}
+
+.copy-icon {
+  margin-right: 5px;
+}
+
+.window-body {
+  padding: 15px;
+  background-color: var(--background-color-dark);
+  text-align: left;
 }
 </style>
