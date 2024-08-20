@@ -4,6 +4,6 @@ import { getOAIResult } from "../controllers/oAiController";
 const router = Router();
 
 // Define the route for handling OpenAI requests
-router.post("/request", getOAIResult);
+router.post("/fetch", getOAIResult);
 
 export default router;

@@ -37,7 +37,7 @@ const apiResult = ref<string>("");
 const fetchOAIResult = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:3000/api/openai/request",
+      "http://localhost:3000/api/openai/fetch",
       {
         content: userInput.value,
       }

@@ -18,14 +18,27 @@
             Reach out to us for any inquiries or feedback, this app is meant to
             help make your life easier!
           </p>
-          <form>
+          <form @submit.prevent="sendMessage">
             <label for="name">Name:</label>
-            <input type="text" id="name" placeholder="Your Name" required />
+            <input
+              type="text"
+              id="name"
+              v-model="form.name"
+              placeholder="Your Name"
+              required
+            />
             <label for="email">Email:</label>
-            <input type="email" id="email" placeholder="Your Email" required />
+            <input
+              type="email"
+              id="email"
+              v-model="form.email"
+              placeholder="Your Email"
+              required
+            />
             <label for="message">Message:</label>
             <textarea
               id="message"
+              v-model="form.message"
               placeholder="Your Message"
               required
             ></textarea>
@@ -37,7 +50,37 @@
   </div>
 </template>
 
-<script></script>
+<script setup lang="ts">
+import { ref } from "vue";
+
+const form = ref({
+  name: "",
+  email: "",
+  message: "",
+});
+
+const sendMessage = async () => {
+  try {
+    const response = await fetch("http://localhost:3000/api/contact/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form.value),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to send message");
+    }
+
+    const data = await response.json();
+    alert(data.success);
+  } catch (error) {
+    console.error("Error sending message:", error);
+    alert("Failed to send message");
+  }
+};
+</script>
 
 <style>
 /* Keep the same styles for the button */

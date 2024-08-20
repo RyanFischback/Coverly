@@ -1,15 +1,11 @@
 import { Router } from "express";
 import cookieParser from "cookie-parser";
-import {
-  home,
-  register,
-  registerValidation,
-} from "../controllers/homeContoller";
+import { home } from "../controllers/homeContoller";
 import oAiRoutes from "./oAiRoutes";
-import { isAuthenticated } from "../middleware/authMiddleware";
+import contactRoutes from "./contactRoutes";
 import { errorHandler } from "../middleware/errorHandler";
 import { logger } from "../middleware/loggerMiddleware";
-import { validateRequest } from "../middleware/validationMiddleware";
+import { rateLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
 
@@ -17,14 +13,16 @@ const router = Router();
 router.use(cookieParser());
 router.use(logger); // Log requests
 
-// Define the home route
-router.get("/", home);
+// Apply rate limiter to all routes
+router.use(rateLimiter);
 
-// Define the register route with validation
-router.post("/register", registerValidation, validateRequest, register);
+router.get("/", home); // Define the home route
 
-// Add the OpenAI routes
+// Define the OpenAI routes
 router.use("/openai", oAiRoutes);
+
+// Define the contact routes
+router.use("/contact", contactRoutes);
 
 // Error handling middleware
 router.use(errorHandler);
