@@ -1,15 +1,42 @@
 <template>
   <div class="demo-page">
     <form @submit.prevent="fetchOAIResult">
-      <label for="userInput">Enter your request:</label>
-      <input
-        type="text"
-        id="userInput"
-        v-model="userInput"
-        placeholder="Ask something..."
-        required
-      />
-      <button type="submit">Submit</button>
+      <!-- Job Details Section -->
+      <div class="section">
+        <h2>Job Posting</h2>
+        <label for="jobPosting">Enter the full job posting:</label>
+        <textarea
+          id="jobPosting"
+          v-model="jobPosting"
+          placeholder="Enter the full job posting here..."
+          required
+        ></textarea>
+      </div>
+
+      <!-- User Information Section -->
+      <div class="section">
+        <h2>User Information</h2>
+        <label for="userInfo">Enter your qualifications:</label>
+        <textarea
+          id="userInfo"
+          v-model="userInfo"
+          placeholder="Enter your resume here, and any additional information related to the job posting..."
+          required
+        ></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        :disabled="!isFormValid"
+        :title="
+          !isFormValid
+            ? 'Please fill out both fields to enable the submit button.'
+            : ''
+        "
+      >
+        Submit
+      </button>
     </form>
 
     <!-- Display the result in a stylized "window" -->
@@ -28,18 +55,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import axios from "axios";
 
-const userInput = ref<string>("");
+// Define data objects for job posting and user information
+const jobPosting = ref<string>("");
+const userInfo = ref<string>("");
+
+// Define the API result
 const apiResult = ref<string>("");
+
+// Computed property to check if both fields are filled
+const isFormValid = computed(() => {
+  return jobPosting.value.trim() !== "" && userInfo.value.trim() !== "";
+});
 
 const fetchOAIResult = async () => {
   try {
     const response = await axios.post(
       "http://localhost:3000/api/openai/fetch",
       {
-        content: userInput.value,
+        jobPosting: sanitizeInput(jobPosting.value),
+        userInfo: sanitizeInput(userInfo.value),
       }
     );
     apiResult.value = response.data; // Adjust according to your API response structure
@@ -47,6 +84,11 @@ const fetchOAIResult = async () => {
     console.error("Error fetching result:", error);
     apiResult.value = "Error fetching result";
   }
+};
+
+// Function to sanitize inputs
+const sanitizeInput = (input: string) => {
+  return input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 };
 
 const copyToClipboard = async () => {
@@ -73,10 +115,14 @@ const copyToClipboard = async () => {
   align-items: center;
 }
 
+.section {
+  margin-bottom: 20px;
+}
+
 .demo-page form {
   display: flex;
   flex-direction: column;
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
   width: 100%;
 }
@@ -85,11 +131,13 @@ const copyToClipboard = async () => {
   margin-bottom: 10px;
 }
 
-.demo-page input {
+.demo-page textarea {
   padding: 10px;
   border: 1px solid #cccccc;
   border-radius: 4px;
   margin-bottom: 10px;
+  width: 100%;
+  resize: vertical;
 }
 
 .demo-page button {
@@ -100,9 +148,15 @@ const copyToClipboard = async () => {
   cursor: pointer;
   border-radius: 4px;
   font-size: 1.2em;
+  transition: background-color 0.3s;
 }
 
-.demo-page button:hover {
+.demo-page button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.demo-page button:hover:not(:disabled) {
   background-color: #e64a19;
 }
 
@@ -111,7 +165,7 @@ const copyToClipboard = async () => {
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  max-width: 500px;
+  max-width: 600px;
   width: 100%;
   margin-top: 20px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
