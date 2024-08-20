@@ -113,7 +113,7 @@ const fetchOAIResult = async () => {
 
     apiResult.value = response.data; // Adjust according to your API response structure
     console.log(response.data);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching result:", error);
 
     if (error.response && error.response.status === 429) {

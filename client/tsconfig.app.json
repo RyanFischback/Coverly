@@ -23,9 +23,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": [
-    "client/src/**/*.ts",
-    "client/src/**/*.tsx",
-    "client/src/**/*.vue"
-  ]
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 }
