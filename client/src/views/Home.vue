@@ -15,7 +15,7 @@
         <div class="container">
           <h2>Contact Me</h2>
           <p>
-            Reach out to us for any inquiries or feedback, this app is meant to
+            Reach out to me for any inquiries or feedback, this app is meant to
             help make your life easier!
           </p>
           <form @submit.prevent="sendMessage">
