@@ -21,8 +21,16 @@ export const getOAIResult = async (req: Request, res: Response) => {
         .json({ error: "Both job posting and user information are required" });
     }
 
+    const currentDate: Date = new Date();
+
+    const formattedDate: string = currentDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
     // Combine the fields into a single message
-    const combinedContent = `Please take the following job posting:\n${jobPosting}\n\n and write me a meaningful cover letter with the following information:\n${userInfo} and direct it to this company if not supplied by the job posting:\n${companyDetails} using todays date`;
+    const combinedContent = `Please take the following job posting:\n${jobPosting}\n\n and write me a meaningful cover letter with the following information:\n${userInfo} and direct it to this company if not supplied by the job posting:\n${companyDetails} using this date:\n${formattedDate}`;
 
     if (
       !combinedContent.toLowerCase().includes("responsibilities") &&
@@ -48,7 +56,7 @@ export const getOAIResult = async (req: Request, res: Response) => {
         },
         { role: "user", content: combinedContent }, // Use the combined content
       ],
-      max_tokens: 2500,
+      max_tokens: 3000,
     });
 
     res.json(request.choices[0].message.content);
