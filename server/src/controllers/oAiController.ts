@@ -12,7 +12,7 @@ const openai = new OpenAI({
 export const getOAIResult = async (req: Request, res: Response) => {
   try {
     // Extract content from the request body
-    const { jobPosting, userInfo } = req.body;
+    const { jobPosting, companyDetails, userInfo } = req.body;
 
     // Validate input
     if (!jobPosting || !userInfo) {
@@ -22,7 +22,7 @@ export const getOAIResult = async (req: Request, res: Response) => {
     }
 
     // Combine the fields into a single message
-    const combinedContent = `Please take the following job posting:\n${jobPosting}\n\n and write me a meaningful cover letter with the following information:\n${userInfo}`;
+    const combinedContent = `Please take the following job posting:\n${jobPosting}\n\n and write me a meaningful cover letter with the following information:\n${userInfo} and direct it to this company if not supplied by the job posting:\n${companyDetails} using todays date`;
 
     if (
       !combinedContent.toLowerCase().includes("responsibilities") &&

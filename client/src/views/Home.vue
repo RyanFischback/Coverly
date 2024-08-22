@@ -104,23 +104,6 @@ const sendMessage = async () => {
   background-color: #e64a19;
 }
 
-/* Additional styles */
-.hero {
-  background-color: var(--hero-background);
-  color: var(--text-color);
-  padding: 60px 0;
-  text-align: center;
-}
-
-.hero h2 {
-  margin: 0;
-  font-size: 2.5em;
-}
-
-.hero p {
-  font-size: 1.2em;
-}
-
 .contact {
   padding: 40px 0;
   background-color: var(--section-background);

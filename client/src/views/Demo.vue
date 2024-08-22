@@ -1,60 +1,72 @@
 <template>
   <div class="demo-page">
-    <form @submit.prevent="fetchOAIResult">
-      <!-- Job Details Section -->
-      <div class="section">
-        <h2>Job Posting</h2>
-        <label for="jobPosting">Enter the full job posting:</label>
-        <textarea
-          id="jobPosting"
-          v-model="jobPosting"
-          placeholder="Enter the full job posting here..."
-          required
-        ></textarea>
-      </div>
-
-      <!-- User Information Section -->
-      <div class="section">
-        <h2>Candidate Information</h2>
-        <label for="userInfo">Enter your qualifications:</label>
-        <textarea
-          id="userInfo"
-          v-model="userInfo"
-          placeholder="Enter your resume here, and any additional information related to the job posting..."
-          required
-        ></textarea>
-      </div>
-
-      <!-- Submit Button -->
-      <button
-        type="submit"
-        :disabled="!isFormValid || loading"
-        :title="
-          !isFormValid
-            ? 'Please fill out both fields to enable the submit button.'
-            : ''
-        "
-      >
-        <span v-if="loading" class="spinner"></span>
-        <span v-else>Submit</span>
-      </button>
-    </form>
-
-    <!-- Display the result in a stylized "window" -->
-    <div v-if="apiResult" class="api-result-window">
-      <div class="window-header">
-        <span>Result</span>
-        <div class="header-buttons">
-          <span class="copy-content" @click="copyToClipboard">
-            <i class="copy-icon">📋 Copy</i>
-          </span>
-          <span class="export-content" @click="exportToPDF">
-            <i class="export-icon">📄 Export to PDF</i>
-          </span>
+    <div class="content-wrapper">
+      <form @submit.prevent="fetchOAIResult">
+        <!-- Job Details Section -->
+        <div class="section">
+          <h2>Job Posting</h2>
+          <label for="jobPosting">Enter the full job posting:</label>
+          <textarea
+            id="jobPosting"
+            v-model="jobPosting"
+            placeholder="Enter the full job posting here..."
+            required
+          ></textarea>
         </div>
-      </div>
-      <div class="window-body">
-        <div v-html="apiResult" class="formatted-result"></div>
+
+        <div class="section">
+          <h2>Company Details</h2>
+          <label for="companyDetails">Enter the Company Details:</label>
+          <textarea
+            id="companyDetails"
+            v-model="companyDetails"
+            placeholder="Enter the company address here..."
+          ></textarea>
+        </div>
+
+        <!-- User Information Section -->
+        <div class="section">
+          <h2>Candidate Information</h2>
+          <label for="userInfo">Enter your qualifications:</label>
+          <textarea
+            id="userInfo"
+            v-model="userInfo"
+            placeholder="Enter your resume here, and any additional information related to the job posting..."
+            required
+          ></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          :disabled="!isFormValid || loading"
+          :title="
+            !isFormValid
+              ? 'Please fill out all required fields to enable the submit button.'
+              : ''
+          "
+        >
+          <span v-if="loading" class="spinner"></span>
+          <span v-else>Submit</span>
+        </button>
+      </form>
+
+      <!-- Display the result in a stylized "window" -->
+      <div v-if="apiResult" class="api-result-window">
+        <div class="window-header">
+          <span>Result</span>
+          <div class="header-buttons">
+            <span class="copy-content" @click="copyToClipboard">
+              <i class="copy-icon">📋 Copy</i>
+            </span>
+            <span class="export-content" @click="exportToPDF">
+              <i class="export-icon">📄 Export to PDF</i>
+            </span>
+          </div>
+        </div>
+        <div class="window-body">
+          <div v-html="apiResult" class="formatted-result"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -68,6 +80,7 @@ import jsPDF from "jspdf";
 // Define data objects for job posting and user information
 const jobPosting = ref<string>("");
 const userInfo = ref<string>("");
+const companyDetails = ref<string>("");
 
 // Define the API result
 const apiResult = ref<string>("");
@@ -77,7 +90,7 @@ const loading = ref<boolean>(false);
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// Computed property to check if both fields are filled
+// Computed property to check if required fields are filled
 const isFormValid = computed(() => {
   return jobPosting.value.trim() !== "" && userInfo.value.trim() !== "";
 });
@@ -88,6 +101,7 @@ const fetchOAIResult = async () => {
     const response = await axios.post(`${apiUrl}/api/openai/fetch`, {
       jobPosting: sanitizeInput(jobPosting.value),
       userInfo: sanitizeInput(userInfo.value),
+      companyDetails: sanitizeInput(companyDetails.value),
     });
 
     // Handle rate limit headers if available
@@ -97,11 +111,6 @@ const fetchOAIResult = async () => {
       const currentTime = Date.now();
       const timeUntilReset = resetTime - currentTime;
       if (timeUntilReset > 0) {
-        console.log(
-          `Rate limit exceeded. Please wait ${Math.ceil(
-            timeUntilReset / 1000
-          )} seconds.`
-        );
         return; // Prevent further requests until the limit resets
       }
     }
@@ -111,18 +120,15 @@ const fetchOAIResult = async () => {
     }
 
     apiResult.value = response.data; // Adjust according to your API response structure
-    console.log(response.data);
   } catch (error: any) {
-    console.error("Error fetching result:", error);
-
     if (error.response && error.response.status === 429) {
       const retryAfter = error.response.headers["retry-after"];
       const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000; // Fallback to 1 minute
       alert(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} `);
-    } else if (error.response.status === 400) {
+    } else if (error.response && error.response.status === 400) {
       alert(`Error fetching result: ${error.response.data.error}`);
     } else {
-      alert("An unexpected error occured");
+      alert(`An unexpected error occured, Please try again`);
     }
   } finally {
     loading.value = false; // End loading
@@ -180,17 +186,35 @@ const exportToPDF = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.content-wrapper {
+  background: var(--section-background);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  width: 100%;
 }
 
 .section {
   margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: var(--section-background);
+}
+
+.section h2 {
+  margin-top: 0;
+  color: var(--text-color);
 }
 
 .demo-page form {
   display: flex;
   flex-direction: column;
-  max-width: 600px;
-  margin: 0 auto;
   width: 100%;
 }
 
@@ -205,17 +229,20 @@ const exportToPDF = async () => {
   margin-bottom: 10px;
   width: 100%;
   resize: vertical;
+  height: 125px;
+  background: var(--background-color);
+  color: var(--text-color);
 }
 
 .demo-page button {
-  background-color: var(--accent-color);
+  background-color: var(--button-background);
   color: #ffffff;
   border: none;
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 4px;
   font-size: 1.2em;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
   position: relative;
 }
 
@@ -225,7 +252,8 @@ const exportToPDF = async () => {
 }
 
 .demo-page button:hover:not(:disabled) {
-  background-color: #e64a19;
+  background-color: var(--button-background-hover);
+  transform: scale(1.05);
 }
 
 /* Spinner styling */
@@ -258,15 +286,17 @@ const exportToPDF = async () => {
   width: 100%;
   margin-top: 20px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--section-background);
 }
 
 .window-header {
-  background-color: var(--background-color);
+  background-color: var(--header-background);
   padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #ddd;
+  color: var(--text-color);
   font-weight: bold;
 }
 
@@ -277,7 +307,7 @@ const exportToPDF = async () => {
 
 .window-header .copy-content {
   cursor: pointer;
-  color: #007bff;
+  color: var(--accent-color);
 }
 
 .window-header .copy-content:hover {
@@ -290,7 +320,7 @@ const exportToPDF = async () => {
 
 .window-header .export-content {
   cursor: pointer;
-  color: #007bff;
+  color: var(--accent-color);
 }
 
 .window-header .export-content:hover {
@@ -303,7 +333,8 @@ const exportToPDF = async () => {
 
 .window-body {
   padding: 15px;
-  background-color: var(--background-color);
+  background-color: var(--section-background);
+  color: var(--text-color);
   text-align: left;
 }
 

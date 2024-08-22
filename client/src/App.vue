@@ -58,7 +58,6 @@ watchEffect(() => {
 </template>
 
 <style>
-/* CSS Variables */
 :root {
   --background-color-light: #f4f4f4;
   --background-color-dark: #2c2c2c;
@@ -71,8 +70,11 @@ watchEffect(() => {
   --button-background-hover: #003d80;
   --header-background: #004d99;
   --footer-background: #004d99;
-  --hero-background: #00bfae;
   --section-background: #ffffff;
+  --navbar-background-light: #ffffff;
+  --navbar-background-dark: #333333;
+  --border-radius: 8px; /* Common border radius */
+  --border-color: #ffffff;
 }
 
 body.light-mode {
@@ -82,8 +84,8 @@ body.light-mode {
   --button-background-hover: var(--button-background-hover);
   --header-background: var(--header-background);
   --footer-background: var(--footer-background);
-  --hero-background: var(--hero-background);
   --section-background: var(--section-background);
+  --navbar-background: var(--navbar-background-light);
 }
 
 body.dark-mode {
@@ -93,8 +95,8 @@ body.dark-mode {
   --button-background-hover: #009688;
   --header-background: var(--header-background);
   --footer-background: var(--footer-background);
-  --hero-background: #2e3138;
   --section-background: #333333;
+  --navbar-background: var(--navbar-background-dark);
 }
 
 body {
@@ -128,8 +130,12 @@ header h1 {
   text-decoration: none; /* Remove default link underline */
 }
 
+/* Navbar */
 nav {
-  flex: 1;
+  background-color: var(--navbar-background);
+  border-radius: var(--border-radius);
+  padding: 10px 20px;
+  margin: 0 0 20px; /* Space below the navbar */
 }
 
 .nav-links {
@@ -143,18 +149,22 @@ nav a {
   text-decoration: none;
   margin-left: 20px;
   font-size: 1.1em;
+  border-radius: var(--border-radius);
+  padding: 5px 10px;
+  transition: background-color 0.3s;
 }
 
 nav a:hover {
   color: var(--accent-color);
+  background-color: rgba(0, 0, 0, 0.1); /* Light background on hover */
 }
 
 /* Hero Section */
 .hero {
-  background-color: var(--hero-background);
   color: var(--text-color);
   padding: 60px 0;
   text-align: center;
+  border-radius: var(--border-radius);
 }
 
 .hero h2 {
@@ -172,7 +182,7 @@ nav a:hover {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   font-size: 1.2em;
   margin-top: 20px;
 }
@@ -181,7 +191,6 @@ nav a:hover {
   background-color: #e64a19;
 }
 
-/* Services Section */
 .services {
   padding: 40px 0;
   background-color: var(--section-background);
@@ -197,7 +206,7 @@ nav a:hover {
 .service {
   background-color: var(--section-background);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -213,7 +222,6 @@ nav a:hover {
   margin: 10px 0;
 }
 
-/* About Section */
 .about {
   padding: 40px 0;
 }
@@ -225,7 +233,6 @@ nav a:hover {
   color: var(--text-color);
 }
 
-/* Contact Section */
 .contact {
   padding: 40px 0;
   background-color: var(--section-background);
@@ -254,7 +261,7 @@ nav a:hover {
   width: 100%;
   padding: 10px;
   border: 1px solid #cccccc;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   margin-bottom: 10px;
 }
 
@@ -264,7 +271,7 @@ nav a:hover {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
   font-size: 1.2em;
 }
 
@@ -278,6 +285,7 @@ footer {
   color: var(--text-color);
   text-align: center;
   padding: 20px 0;
+  border-radius: var(--border-radius);
 }
 
 footer p {
