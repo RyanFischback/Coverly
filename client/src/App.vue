@@ -66,8 +66,8 @@ watchEffect(() => {
   --primary-color: #004d99;
   --secondary-color: #00bfae;
   --accent-color: #ff5722;
-  --button-background: #004d99;
-  --button-background-hover: #003d80;
+  --button-background: #ff5722;
+  --button-background-hover: #e64a19;
   --header-background: #004d99;
   --footer-background: #004d99;
   --section-background: #ffffff;
@@ -80,8 +80,6 @@ watchEffect(() => {
 body.light-mode {
   --background-color: var(--background-color-light);
   --text-color: var(--text-color-light);
-  --button-background: var(--button-background);
-  --button-background-hover: var(--button-background-hover);
   --header-background: var(--header-background);
   --footer-background: var(--footer-background);
   --section-background: var(--section-background);
@@ -91,8 +89,6 @@ body.light-mode {
 body.dark-mode {
   --background-color: var(--background-color-dark);
   --text-color: var(--text-color-dark);
-  --button-background: var(--secondary-color);
-  --button-background-hover: #009688;
   --header-background: var(--header-background);
   --footer-background: var(--footer-background);
   --section-background: #333333;
@@ -177,7 +173,7 @@ nav a:hover {
 }
 
 .hero button {
-  background-color: var(--accent-color);
+  background-color: var(--button-background);
   color: #ffffff;
   border: none;
   padding: 10px 20px;
@@ -188,7 +184,7 @@ nav a:hover {
 }
 
 .hero button:hover {
-  background-color: #e64a19;
+  background-color: var(--button-background-hover);
 }
 
 .services {
@@ -266,7 +262,7 @@ nav a:hover {
 }
 
 .contact button {
-  background-color: var(--accent-color);
+  background-color: var(--button-background);
   color: #ffffff;
   border: none;
   padding: 10px 20px;
@@ -276,7 +272,7 @@ nav a:hover {
 }
 
 .contact button:hover {
-  background-color: #e64a19;
+  background-color: var(--button-background-hover);
 }
 
 /* Footer */
