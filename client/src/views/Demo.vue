@@ -14,16 +14,6 @@
           ></textarea>
         </div>
 
-        <div class="section">
-          <h2>Company Details</h2>
-          <label for="companyDetails">Enter the Company Details:</label>
-          <textarea
-            id="companyDetails"
-            v-model="companyDetails"
-            placeholder="Enter the company address here..."
-          ></textarea>
-        </div>
-
         <!-- User Information Section -->
         <div class="section">
           <h2>Candidate Information</h2>
@@ -31,8 +21,18 @@
           <textarea
             id="userInfo"
             v-model="userInfo"
-            placeholder="Enter your resume here, and any additional information related to the job posting..."
+            placeholder="Enter your resume here, and any additional information that makes you a better candidate for the job posting..."
             required
+          ></textarea>
+        </div>
+
+        <div class="section">
+          <h2>Company Details (Optional)</h2>
+          <label for="companyDetails">Enter the Company Details:</label>
+          <textarea
+            id="companyDetails"
+            v-model="companyDetails"
+            placeholder="Enter the company details here..."
           ></textarea>
         </div>
 
@@ -145,7 +145,7 @@ const copyToClipboard = async () => {
     if (apiResult.value) {
       // Copy the API result to the clipboard
       await navigator.clipboard.writeText(apiResult.value);
-      alert("API result copied to clipboard!");
+      alert("Copied to clipboard!");
     } else {
       alert("Nothing to copy!");
     }
