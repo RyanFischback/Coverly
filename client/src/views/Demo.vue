@@ -95,8 +95,35 @@ const isFormValid = computed(() => {
   return jobPosting.value.trim() !== "" && userInfo.value.trim() !== "";
 });
 
+const healthCheckUrl = `${apiUrl}/api/health`;
+
+const checkServerHealth = async () => {
+  try {
+    const healthResponse = await axios.get(healthCheckUrl, {
+      timeout: 5000,
+    });
+
+    if (healthResponse.status === 200) {
+      return true; // Server is healthy
+    } else {
+      return false; // Server is not healthy
+    }
+  } catch (error: any) {
+    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+      alert("The server is waking up, this may take a couple minutes...");
+    } else {
+      alert("An unexpected server error occurred. Please try again later.");
+    }
+    return false;
+  }
+};
+
 const fetchOAIResult = async () => {
   loading.value = true; // Start loading
+
+  // Check server health before proceeding
+  await checkServerHealth();
+
   try {
     const response = await axios.post(`${apiUrl}/api/openai/fetch`, {
       jobPosting: sanitizeInput(jobPosting.value),
@@ -124,7 +151,9 @@ const fetchOAIResult = async () => {
     if (error.response && error.response.status === 429) {
       const retryAfter = error.response.headers["retry-after"];
       const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : 60000; // Fallback to 1 minute
-      alert(`Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} `);
+      alert(
+        `Rate limit exceeded. Please wait ${Math.ceil(waitTime / 1000)} seconds`
+      );
     } else if (error.response && error.response.status === 400) {
       alert(`Error fetching result: ${error.response.data.error}`);
     } else {
