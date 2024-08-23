@@ -63,3 +63,7 @@ export const sendEmail = async (req: Request, res: Response) => {
     }
   }
 };
+
+export const health = (req: Request, res: Response) => {
+  res.status(200).send("Server is healthy");
+};

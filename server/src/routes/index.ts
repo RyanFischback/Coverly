@@ -1,6 +1,6 @@
 import { Router } from "express";
 import cookieParser from "cookie-parser";
-import { home } from "../controllers/homeContoller";
+import { health, home } from "../controllers/homeContoller";
 import oAiRoutes from "./oAiRoutes";
 import contactRoutes from "./contactRoutes";
 import { errorHandler } from "../middleware/errorHandler";
@@ -17,6 +17,9 @@ router.use(logger); // Log requests
 router.use(rateLimiter);
 
 router.get("/", home); // Define the home route
+
+// Define the health check route
+router.get("/health", health);
 
 // Define the OpenAI routes
 router.use("/openai", oAiRoutes);
