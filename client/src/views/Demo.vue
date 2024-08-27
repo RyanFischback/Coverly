@@ -14,21 +14,22 @@
           ></textarea>
         </div>
 
-        <!-- User Information Section -->
+        <!-- Candidate Information Section -->
         <div class="section">
           <h2>Candidate Information</h2>
           <label for="userInfo">Enter your qualifications:</label>
           <textarea
             id="userInfo"
             v-model="userInfo"
-            placeholder="Enter your resume here, and any additional information that makes you a better candidate for the job posting..."
+            placeholder="Enter your qualifications here..."
             required
           ></textarea>
         </div>
 
+        <!-- Company Details Section -->
         <div class="section">
           <h2>Company Details (Optional)</h2>
-          <label for="companyDetails">Enter the Company Details:</label>
+          <label for="companyDetails">Enter company details</label>
           <textarea
             id="companyDetails"
             v-model="companyDetails"
@@ -36,7 +37,17 @@
           ></textarea>
         </div>
 
-        <!-- Submit Button -->
+        <!-- Additional Information Section -->
+        <div class="section">
+          <h3>Additional Information (Optional)</h3>
+          <label for="additionalInfo">Enter any additional information:</label>
+          <textarea
+            id="extraInfo"
+            v-model="extraInfo"
+            placeholder="Enter any additional information here..."
+          ></textarea>
+        </div>
+
         <button
           type="submit"
           :disabled="!isFormValid || loading"
@@ -50,7 +61,6 @@
           <span v-else>Submit</span>
         </button>
       </form>
-
       <!-- Display the result in a stylized "window" -->
       <div v-if="apiResult" class="api-result-window">
         <div class="window-header">
@@ -77,10 +87,11 @@ import { ref, computed } from "vue";
 import axios from "axios";
 import jsPDF from "jspdf";
 
-// Define data objects for job posting and user information
+// Define data objects for job posting, user information, company details, and additional info
 const jobPosting = ref<string>("");
 const userInfo = ref<string>("");
 const companyDetails = ref<string>("");
+const extraInfo = ref<string>(""); // New field for additional information
 
 // Define the API result
 const apiResult = ref<string>("");
@@ -129,8 +140,8 @@ const fetchOAIResult = async () => {
       jobPosting: sanitizeInput(jobPosting.value),
       userInfo: sanitizeInput(userInfo.value),
       companyDetails: sanitizeInput(companyDetails.value),
+      extraInfo: sanitizeInput(extraInfo.value),
     });
-
     // Handle rate limit headers if available
     const rateLimitReset = response.headers["x-ratelimit-reset"];
     if (rateLimitReset) {
@@ -172,7 +183,6 @@ const sanitizeInput = (input: string) => {
 const copyToClipboard = async () => {
   try {
     if (apiResult.value) {
-      // Copy the API result to the clipboard
       await navigator.clipboard.writeText(apiResult.value);
       alert("Copied to clipboard!");
     } else {
@@ -192,7 +202,6 @@ const exportToPDF = async () => {
     doc.setFontSize(12);
     doc.setFont("Helvetica", "normal");
 
-    // Split the text into lines to fit within the PDF width
     const margin = 10;
     const pageWidth = doc.internal.pageSize.width;
     const lineWidth = pageWidth - 2 * margin;
@@ -207,7 +216,6 @@ const exportToPDF = async () => {
   }
 };
 </script>
-
 <style scoped>
 /* General styles for demo page */
 .demo-page {
