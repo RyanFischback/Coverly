@@ -39,8 +39,8 @@
 
         <!-- Additional Information Section -->
         <div class="section">
-          <h3>Additional Information (Optional)</h3>
-          <label for="additionalInfo">Enter any additional information:</label>
+          <h2>Additional Information (Optional)</h2>
+          <label for="extraInfo">Enter any additional information:</label>
           <textarea
             id="extraInfo"
             v-model="extraInfo"
