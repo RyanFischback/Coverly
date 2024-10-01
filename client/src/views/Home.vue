@@ -5,7 +5,19 @@
         <div class="container">
           <h2>Welcome to the Coverly App!</h2>
           <p>An AI Assisted Cover Letter Generator</p>
-          <!-- Use RouterLink instead of button -->
+
+          <div class="video-wrapper">
+            <iframe
+              width="1020"
+              height="630"
+              src="https://www.youtube.com/embed/CqfWSt1JQzE"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
+
+          <!-- Get Started Button -->
           <router-link to="/demo" class="get-started-button"
             >Get Started</router-link
           >
@@ -35,5 +47,12 @@
 
 .get-started-button:hover {
   background-color: #e64a19;
+}
+
+/* Add spacing and style for the video */
+.video-wrapper {
+  margin: 30px 0; /* Adds space above and below the video */
+  display: flex;
+  justify-content: center;
 }
 </style>
