@@ -30,7 +30,7 @@ watchEffect(() => {
           <div class="nav-links">
             <router-link to="/">Home</router-link>
             <router-link to="/about">About</router-link>
-            <router-link to="/demo">Demo</router-link>
+            <router-link to="/cover-letter">Cover Letter</router-link>
             <router-link to="/contact">Contact</router-link>
             <div class="slider-container">
               <label class="switch">
@@ -52,7 +52,7 @@ watchEffect(() => {
     <!-- Footer Section -->
     <footer>
       <div class="container">
-        <p>&copy; 2024 Ryan Fischback. All rights reserved.</p>
+        <p>&copy; 2025 Ryan Fischback. All rights reserved.</p>
       </div>
     </footer>
   </div>

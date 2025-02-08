@@ -18,7 +18,7 @@
           </div>
 
           <!-- Get Started Button -->
-          <router-link to="/demo" class="get-started-button"
+          <router-link to="/cover-letter" class="get-started-button"
             >Get Started</router-link
           >
         </div>

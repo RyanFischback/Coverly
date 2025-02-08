@@ -11,7 +11,7 @@
           experience, enabling users to create personalized and impactful cover
           letters with minimal effort.
         </p>
-        <router-link to="/demo" class="get-started-button"
+        <router-link to="/cover-letter" class="get-started-button"
           >Get Started</router-link
         >
       </div>

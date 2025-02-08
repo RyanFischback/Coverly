@@ -1,5 +1,5 @@
 <template>
-  <div class="demo-page">
+  <div class="cover-letter-page">
     <div class="content-wrapper">
       <form @submit.prevent="fetchOAIResult">
         <!-- Job Details Section -->
@@ -58,7 +58,7 @@
           "
         >
           <span v-if="loading" class="spinner"></span>
-          <span v-else>Submit</span>
+          <Text v-else :disabled="!isFormValid">Submit</Text>
         </button>
       </form>
       <!-- Display the result in a stylized "window" -->
@@ -86,6 +86,7 @@
 import { ref, computed } from "vue";
 import axios from "axios";
 import jsPDF from "jspdf";
+import Text from "../components/Text.vue";
 
 // Define data objects for job posting, user information, company details, and additional info
 const jobPosting = ref<string>("");
@@ -218,7 +219,7 @@ const exportToPDF = async () => {
 </script>
 <style scoped>
 /* General styles for demo page */
-.demo-page {
+.cover-letter-page {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -249,17 +250,17 @@ const exportToPDF = async () => {
   color: var(--text-color);
 }
 
-.demo-page form {
+.cover-letter-page form {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-.demo-page label {
+.cover-letter-page label {
   margin-bottom: 10px;
 }
 
-.demo-page textarea {
+.cover-letter-page textarea {
   padding: 10px;
   border: 1px solid #cccccc;
   border-radius: 4px;
@@ -271,7 +272,7 @@ const exportToPDF = async () => {
   color: var(--text-color);
 }
 
-.demo-page button {
+.cover-letter-page button {
   background-color: var(--button-background);
   color: #ffffff;
   border: none;
@@ -283,12 +284,12 @@ const exportToPDF = async () => {
   position: relative;
 }
 
-.demo-page button:disabled {
+.cover-letter-page button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
 
-.demo-page button:hover:not(:disabled) {
+.cover-letter-page button:hover:not(:disabled) {
   background-color: var(--button-background-hover);
   transform: scale(1.05);
 }
