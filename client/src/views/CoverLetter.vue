@@ -463,7 +463,7 @@ const exportToPDF = () => {
   const plain = (tmp.innerText || "").trim();
   const lines = doc.splitTextToSize(plain, maxWidth);
   let y = margin;
-  lines.forEach((line) => {
+  lines.forEach((line: any) => {
     if (y > doc.internal.pageSize.getHeight() - margin) {
       doc.addPage();
       y = margin;
