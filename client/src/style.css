@@ -1,20 +1,78 @@
-/* General Reset and Box-Sizing */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ---- Font + baseline (replace your html/body block with this) ---- */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
+/* === THEME DRIVER (put this at the very top of style.css) === */
+:root {
+  /* base tokens */
+  --background-color-light: #f6f7fb;
+  --background-color-dark: #1f1f1f;
+  --text-color-light: #1f2937;
+  --text-color-dark: #fafafa;
+
+  --navbar-background-light: rgba(255, 255, 255, 0.66);
+  --navbar-background-dark: rgba(28, 28, 28, 0.6);
+  --section-background-light: #ffffff;
+  --section-background-dark: #2a2a2a;
+
+  --muted-color: #8b8f98;
+
+  --primary-color: #0b5bd3;
+  --accent-color: #ff5722;
+  --button-background: #ff5722;
+  --button-background-hover: #e64a19;
+}
+
+/* default to light until JS sets data-theme */
+html {
+  --background-color: var(--background-color-light);
+  --text-color: var(--text-color-light);
+  --navbar-background: var(--navbar-background-light);
+  --section-background: var(--section-background-light);
+}
+
+/* explicit themes via attribute */
+html[data-theme="light"] {
+  --background-color: var(--background-color-light);
+  --text-color: var(--text-color-light);
+  --navbar-background: var(--navbar-background-light);
+  --section-background: var(--section-background-light);
+}
+html[data-theme="dark"] {
+  --background-color: var(--background-color-dark);
+  --text-color: var(--text-color-dark);
+  --navbar-background: var(--navbar-background-dark);
+  --section-background: var(--section-background-dark);
+}
+
+/* prefer OS theme on first paint before JS runs (optional) */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --background-color: var(--background-color-dark);
+    --text-color: var(--text-color-dark);
+    --navbar-background: var(--navbar-background-dark);
+    --section-background: var(--section-background-dark);
+  }
 }
 
 html,
-body {
+body,
+#app {
   height: 100%;
-  font-family: "Arial", sans-serif;
-  overflow-x: hidden; /* Prevent horizontal scroll */
-  scroll-behavior: smooth; /* Smooth scrolling */
-  transition: background-color 0.3s, color 0.3s; /* Smooth transition for color changes */
+  min-height: 100dvh;
+}
+html,
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  transition: background-color 0.25s, color 0.25s;
+  line-height: 1.6;
 }
 
-/* Body */
+/* ---- Layout ---- */
 body {
   display: flex;
   flex-direction: column;
@@ -22,123 +80,68 @@ body {
   color: var(--text-color);
 }
 
-/* Navigation Menu */
-nav {
-  background-color: var(--header-background);
-  color: var(--text-color);
-  padding: 10px 20px;
-}
-
-nav ul {
-  display: flex;
-  list-style: none;
-  justify-content: space-around;
-}
-
-nav ul li {
-  margin: 0 10px;
-}
-
-nav ul li a {
-  color: var(--text-color);
-  text-decoration: none;
-  padding: 10px 15px;
-  transition: background-color 0.3s ease;
-}
-
-nav ul li a:hover {
-  background-color: var(--accent-color);
-  border-radius: 5px;
-}
-
-/* Main Content Area */
 main {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
+  flex: 1 0 auto;
+  padding: clamp(16px, 2vw, 28px);
+}
+footer {
+  flex-shrink: 0;
 }
 
-/* Footer */
+/* Use a more flexible container so pages align consistently */
+.container {
+  width: min(1120px, 92%);
+  margin: 0 auto;
+}
+
+/* ---- Sections (remove old min-height:100vh & forced centering) ---- */
+section {
+  padding: clamp(28px, 5vw, 64px) 0;
+  text-align: left;
+  background-color: var(--section-background);
+}
+.full-viewport {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+} /* opt-in only */
+
+/* ---- Footer (keeps it snug at the bottom) ---- */
 footer {
   background-color: var(--footer-background);
   color: var(--text-color);
   text-align: center;
-  padding: 10px;
+  padding: 20px 0 32px;
+  border-top: 1px solid color-mix(in srgb, var(--text-color) 10%, transparent);
 }
 
-/* Sections */
-section {
-  padding: 40px 0;
-  min-height: 100vh; /* Ensure each section takes at least the full viewport height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background-color: var(
-    --section-background
-  ); /* Use CSS variable for section background */
-}
-
-/* Media Queries */
-@media screen and (max-width: 768px) {
-  nav ul {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  nav ul li {
-    margin: 10px 0;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  body {
-    font-size: 14px;
-  }
-
-  nav ul li a {
-    padding: 8px 12px;
-  }
-
-  main {
-    padding: 10px;
-  }
-}
-
-/* Slider Styles */
+/* ---- Keep your slider styles (theme toggle) ---- */
 .slider-container {
   display: flex;
   align-items: center;
 }
-
 .switch {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 34px;
 }
-
 .switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
-
 .slider {
   position: absolute;
+  inset: 0;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   background-color: #ccc;
   transition: 0.4s;
   border-radius: 34px;
 }
-
 .slider:before {
-  position: absolute;
   content: "";
+  position: absolute;
   height: 26px;
   width: 26px;
   border-radius: 50%;
@@ -147,11 +150,20 @@ section {
   background-color: var(--text-color);
   transition: 0.4s;
 }
-
 input:checked + .slider {
   background-color: #2196f3;
 }
-
 input:checked + .slider:before {
   transform: translateX(26px);
+}
+
+/* ---- Accessibility polish ---- */
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent-color) 55%, transparent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
