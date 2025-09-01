@@ -13,21 +13,35 @@ const openai = new OpenAI({
 type OptionalPayload = {
   companyName?: string;
   roleTitle?: string;
-  location?: string;        // e.g., Halifax, NS
+  location?: string;
   jobUrl?: string;
-  hiringManager?: string;   // e.g., Jane Doe
+  hiringManager?: string;
   tone?: "professional" | "friendly" | "enthusiastic" | "formal" | "gen-z";
-  custom?: string;          // JSON string of { [k: string]: string }
+  custom?: string; // JSON string of { [k: string]: string }
 };
 
 const isNonEmpty = (v?: string) => typeof v === "string" && v.trim().length > 0;
 
+// Compact whitespace to save tokens
+const compact = (txt?: string) =>
+  String(txt || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+// Strip accidental <html>/<body> wrappers
+const stripOuterHtmlWrappers = (html: string) =>
+  html
+    .replace(/<\/?html[^>]*>/gi, "")
+    .replace(/<\/?body[^>]*>/gi, "")
+    .trim();
+
 export const getOAIResult = async (req: Request, res: Response) => {
   try {
-    // ---- Pull & normalize body ------------------------------------------------
     const {
       jobPosting,
-      userInfo,          // "Your Resume" in the new UI
+      userInfo,
       companyDetails = "",
       extraInfo = "",
       optional = {},
@@ -39,19 +53,20 @@ export const getOAIResult = async (req: Request, res: Response) => {
       optional?: OptionalPayload | undefined;
     } = req.body || {};
 
-    // ---- Validation -----------------------------------------------------------
+    // ---- Validation ----------------------------------------------------------
     if (!isNonEmpty(jobPosting) || !isNonEmpty(userInfo)) {
       return res
         .status(400)
         .json({ error: "Both job posting and resume are required." });
     }
 
-    // Require the posting to be reasonably complete (heuristic)
     const postingWordCount = String(jobPosting).trim().split(/\s+/).length;
     if (postingWordCount < 30) {
-      return res.status(400).json({
-        error: "Please paste the full job posting (at least ~30 words).",
-      });
+      return res
+        .status(400)
+        .json({
+          error: "Please paste the full job posting (at least ~30 words).",
+        });
     }
 
     // ---- Parse optional.custom safely ----------------------------------------
@@ -87,88 +102,115 @@ export const getOAIResult = async (req: Request, res: Response) => {
       day: "numeric",
     });
 
-    // ---- Build a structured, explicit prompt --------------------------------
-    // We use fenced sections so the model clearly sees each input block.
-    const prompt = `
-Write a tailored cover letter using the inputs below. Follow the rules strictly.
+    // ---- Compact large blocks ------------------------------------------------
+    const posting = compact(jobPosting);
+    const resume = compact(userInfo);
+    const companyNotes = compact(companyDetails);
+    const otherNotes = compact(extraInfo);
 
-# FORMAT
-- Standard business letter.
-- Length: 250–300 words.
+    // ---- Tone instruction ----------------------------------------------------
+    const toneInstruction = isNonEmpty(tone)
+      ? `Override base tone → Write the entire letter in a ${tone} style.`
+      : "Base tone → professional and engaging.";
+
+    // ---- System rules --------------------------------------------------------
+    const systemRules = `
+You are an expert career advisor and precise professional writer.
+Never fabricate facts beyond provided inputs. Be concrete, crisp, and aligned to the job.
+
+${toneInstruction}
+
+OUTPUT FORMAT:
+- Business letter, 250–300 words.
 - Include today's date: ${formattedDate}.
-- If company/location are provided, place a simple header block with company and location on separate lines (no street address unless provided).
-- Salutation:
-  - If hiringManager is provided, use "Dear ${hiringManager},".
-  - Else use "Dear Hiring Manager,".
-- Close with a confident call-to-action and a professional sign-off.
+- If company and/or location appear (in the posting or optional details), add a simple header block:
+  Company on one line; Location on the next.
+- Salutation: if a hiringManager is provided, use "Dear ${
+      isNonEmpty(hiringManager) ? hiringManager : "<HiringManager>"
+    },"; otherwise "Dear Hiring Manager,".
+- End with a confident call-to-action and a professional sign-off.
+- Return ONLY simple HTML using <p> paragraphs (no <html>, <body>, or inline styles).
 
-# TONE
-- Base tone: professional and engaging.
-- If a tone override is provided, adapt accordingly: ${tone || "(auto)"}.
-
-# CONTENT RULES
-- Match the role title exactly if provided: ${roleTitle || "(none)"}.
-- Align the candidate’s experiences ONLY with requirements from the job posting. Do not invent tools, companies, or metrics not present in the resume or extra details.
-- If companyName is provided, refer to it by name. If jobUrl is provided, you may reference that the role was listed on the company’s careers page (no raw URL in the letter).
-- Optionally weave in location if it adds relevance (e.g., relocation, remote eligibility), but do not force it.
-
-# OPTIONAL/CUSTOM DETAILS
-The following optional context may be used if it improves the letter. Keep mentions concise and natural.
-
-CompanyName: ${companyName || "(none)"}
-Location: ${location || "(none)"}
-JobURL: ${jobUrl || "(none)"}
-HiringManager: ${hiringManager || "(none)"}
-CustomFields JSON: ${Object.keys(customFields).length ? JSON.stringify(customFields) : "(none)"}
-
-# INPUTS
-## JOB POSTING
-\`\`\`
-${jobPosting}
-\`\`\`
-
-## CANDIDATE RESUME (PASTE)
-\`\`\`
-${userInfo}
-\`\`\`
-
-## COMPANY NOTES (OPTIONAL)
-\`\`\`
-${companyDetails}
-\`\`\`
-
-## OTHER NOTES (OPTIONAL)
-\`\`\`
-${extraInfo}
-\`\`\`
-
-# OUTPUT
-Return only the final letter in simple HTML using <p> paragraphs (no <html>, <body>, or inline styles).
+CONTENT RULES:
+- Match the role title exactly if provided: ${
+      isNonEmpty(roleTitle) ? roleTitle : "(none)"
+    }.
+- Align ONLY to requirements from the job posting; do not invent tools, employers, or metrics not in the resume/notes.
+- If companyName is provided, refer to it by name.
+- If jobUrl is provided, you may say it was listed on the company's careers page (no raw URL).
+- Use location only if it feels natural (relocation/remote context is fine, but do not force it).
 `.trim();
 
-    // ---- Call OpenAI (Chat Completions) --------------------------------------
+    // ---- Build messages ------------------------------------------------------
+    const optionalDetails = {
+      companyName: isNonEmpty(companyName) ? companyName : null,
+      location: isNonEmpty(location) ? location : null,
+      jobUrl: isNonEmpty(jobUrl) ? jobUrl : null,
+      hiringManager: isNonEmpty(hiringManager) ? hiringManager : null,
+      tone: isNonEmpty(tone) ? tone : "professional",
+      customFields: Object.keys(customFields).length ? customFields : null,
+    };
+
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      { role: "system", content: systemRules },
+      { role: "user", content: `JOB POSTING:\n${posting}` },
+      { role: "user", content: `RESUME:\n${resume}` },
+      {
+        role: "user",
+        content: `OPTIONAL DETAILS:\n${JSON.stringify(optionalDetails)}`,
+      },
+    ];
+
+    if (companyNotes) {
+      messages.push({
+        role: "user",
+        content: `COMPANY NOTES:\n${companyNotes}`,
+      });
+    }
+    if (otherNotes) {
+      messages.push({ role: "user", content: `OTHER NOTES:\n${otherNotes}` });
+    }
+
+    if (isNonEmpty(tone)) {
+      messages.push({
+        role: "user",
+        content: `Final Reminder: Ensure the letter is written in a ${tone} style.`,
+      });
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log("---- Cover Letter Request ----");
+      console.log("System rules:\n", systemRules);
+      console.log("Messages:\n", JSON.stringify(messages, null, 2));
+      console.log("---- End Request ----");
+    }
+
     const request = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.6,
       max_tokens: 700,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an expert career advisor and precise professional writer. You never fabricate facts beyond provided inputs. You write crisply, with concrete achievements tied to the job.",
-        },
-        { role: "user", content: prompt },
-      ],
+      messages,
     });
 
-    const content = request.choices?.[0]?.message?.content?.trim();
+    let content = request.choices?.[0]?.message?.content?.trim() || "";
     if (!content) {
       return res
         .status(502)
         .json({ error: "No content returned from the model." });
     }
 
-    // Respond with HTML (frontend renders via v-html, and also copies plain text)
+    // ---- Post-process --------------------------------------------------------
+    content = stripOuterHtmlWrappers(content);
+    if (!/<p[\s>]/i.test(content)) {
+      const paras = content
+        .split(/\n{2,}/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => `<p>${s.replace(/\n+/g, " ")}</p>`)
+        .join("\n");
+      if (paras) content = paras;
+    }
+
     return res.status(200).json(content);
   } catch (error: any) {
     if (error?.status === 429) {
