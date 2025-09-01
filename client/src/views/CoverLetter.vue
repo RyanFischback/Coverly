@@ -260,7 +260,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import Text from "../components/Text.vue";
 
-type Tone = "" | "professional" | "friendly" | "enthusiastic" | "formal";
+type Tone = "" | "professional" | "friendly" | "enthusiastic" | "formal" | "gen-z";
 interface OptionalBlock {
   companyName?: string;
   roleTitle?: string;
@@ -453,27 +453,30 @@ const copyToClipboard = async () => {
 
 const exportToPDF = () => {
   if (!apiResult.value) return alert("No content to export!");
-  const doc = new jsPDF();
-  doc.setFontSize(12);
-  doc.setFont("Helvetica", "normal");
-  const margin = 16;
-  const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
+
+  const doc = new jsPDF({
+    unit: "pt", // better sizing with px → pt
+    format: "a4"
+  });
+
+  // Create a hidden container with your HTML content
   const tmp = document.createElement("div");
   tmp.innerHTML = apiResult.value;
-  const plain = (tmp.innerText || "").trim();
-  const lines = doc.splitTextToSize(plain, maxWidth);
-  let y = margin;
-  lines.forEach((line: any) => {
-    if (y > doc.internal.pageSize.getHeight() - margin) {
-      doc.addPage();
-      y = margin;
-    }
-    doc.text(line, margin, y);
-    y += 7;
-  });
-  doc.save("cover-letter.pdf");
-};
+  tmp.style.width = "600px"; // control width so it wraps nicely
+  tmp.style.padding = "20px";
 
+  doc.html(tmp, {
+    x: 20,
+    y: 20,
+    html2canvas: {
+      scale: 0.8, // shrink if needed
+      useCORS: true
+    },
+    callback: (doc) => {
+      doc.save("cover-letter.pdf");
+    }
+  });
+};
 const addCustomField = () => {
   customFields.value.push({ id: cryptoRandomId(), key: "", value: "" });
 };

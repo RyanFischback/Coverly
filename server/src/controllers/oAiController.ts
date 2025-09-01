@@ -16,7 +16,7 @@ type OptionalPayload = {
   location?: string;        // e.g., Halifax, NS
   jobUrl?: string;
   hiringManager?: string;   // e.g., Jane Doe
-  tone?: "professional" | "friendly" | "enthusiastic" | "formal" | "";
+  tone?: "professional" | "friendly" | "enthusiastic" | "formal" | "gen-z";
   custom?: string;          // JSON string of { [k: string]: string }
 };
 
