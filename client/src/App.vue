@@ -48,8 +48,6 @@ onMounted(() => {
 
 watch(isDarkMode, applyTheme);
 
-// Export the toggler if your button calls it
-// (make sure your toggle button uses @click="toggleDarkMode")
 </script>
 
 <template>
