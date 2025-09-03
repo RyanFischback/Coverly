@@ -53,12 +53,12 @@ html[data-theme="dark"] {
   }
 }
 
-html,
+/* html,
 body,
 #app {
   height: 100%;
   min-height: 100dvh;
-}
+} */
 html,
 body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -72,31 +72,26 @@ body {
   line-height: 1.6;
 }
 
-/* ---- Layout ---- */
 body {
   display: flex;
   flex-direction: column;
   background-color: var(--background-color);
   color: var(--text-color);
+  width: 100%;
 }
 
 main {
   flex: 1 0 auto;
-  padding: clamp(16px, 2vw, 28px);
 }
 footer {
   flex-shrink: 0;
 }
 
-/* Use a more flexible container so pages align consistently */
 .container {
-  width: min(1120px, 92%);
-  margin: 0 auto;
+  width: 100%;
 }
 
-/* ---- Sections (remove old min-height:100vh & forced centering) ---- */
 section {
-  padding: clamp(28px, 5vw, 64px) 0;
   text-align: left;
   background-color: var(--section-background);
 }

@@ -44,6 +44,23 @@
               @input="onTAInput"
               ref="userInfoEl"
             />
+            <!-- <div class="resume-upload">
+              <input
+                type="file"
+                id="resumeFile"
+                accept=".pdf,.doc,.docx,.txt"
+                @change="onResumeSelected"
+                ref="resumeFileInput"
+                hidden
+              />
+              <button
+                type="button"
+                class="pill"
+                @click="resumeFileInput?.click()"
+              >
+                Upload Resume
+              </button>
+            </div> -->
             <div class="meta-row">
               <small>{{ counts.userInfo }} characters</small>
             </div>
@@ -253,6 +270,11 @@
       </aside>
     </div>
   </div>
+  <!-- <SignupModal
+    :visible="showSignupModal"
+    @close="showSignupModal = false"
+    @signedUp="auth = $event"
+  /> -->
 </template>
 
 <script setup lang="ts">
@@ -260,6 +282,7 @@ import { ref, computed, nextTick, onMounted } from "vue";
 import axios from "axios";
 import jsPDF from "jspdf";
 import Text from "../components/Text.vue";
+// import SignupModal from "../components/SignupModal.vue";
 
 type Tone =
   | ""
@@ -293,6 +316,10 @@ const customFields = ref<CustomFieldRow[]>([]);
 
 const apiResult = ref<string>("");
 const loading = ref<boolean>(false);
+
+// const showSignupModal = ref(false);
+// const auth = ref<{ token?: string; user?: any }>({});
+// const resumeFileInput = ref<HTMLInputElement | null>(null);
 
 const counts = ref<Record<string, number>>({
   jobPosting: 0,
@@ -500,6 +527,43 @@ const keyHandler = (e: KeyboardEvent) => {
     fetchOAIResult();
   }
 };
+
+// const onResumeSelected = async (e: Event) => {
+//   const file = (e.target as HTMLInputElement).files?.[0];
+//   if (!file) return;
+
+//   // If not logged in, show signup modal first
+//   if (!auth.value.token) {
+//     showSignupModal.value = true;
+//     return;
+//   }
+
+//   // If logged in → upload
+//   const formData = new FormData();
+//   formData.append("file", file);
+
+//   // Example: if you want to push to GraphQL uploadResume mutation
+//   const response = await axios.post(
+//     import.meta.env.VITE_API_URL + "/graphql",
+//     {
+//       query: `
+//       mutation UploadResume($url: String!, $fileName: String, $fileType: String) {
+//         uploadResume(fileUrl: $url, fileName: $fileName, fileType: $fileType) {
+//           id url uploadedAt
+//         }
+//       }
+//     `,
+//       variables: {
+//         // url: "https://s3/your-upload", // TODO: configure s3
+//         fileName: file.name,
+//         fileType: file.type,
+//       },
+//     },
+//     {
+//       headers: { Authorization: `Bearer ${auth.value.token}` },
+//     }
+//   );
+// };
 
 onMounted(() => {
   updateCounts();

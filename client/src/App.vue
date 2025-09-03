@@ -52,10 +52,8 @@ watch(isDarkMode, applyTheme);
 
 <template>
   <div id="app">
-    <a href="#main" class="skip-link">Skip to content</a>
-
     <header class="site-header">
-      <div class="container nav-row">
+      <div class="nav-row">
         <router-link to="/" class="brand">
           <span class="logo-dot" aria-hidden="true"></span>
           <span class="brand-word">Coverly</span>
@@ -96,7 +94,6 @@ watch(isDarkMode, applyTheme);
 
             <li class="divider" aria-hidden="true"></li>
 
-            <!-- NEW: pill toggle (no dependency on the old slider UI) -->
             <li>
               <button
                 class="theme-toggle"
@@ -129,23 +126,6 @@ watch(isDarkMode, applyTheme);
 </template>
 
 <style>
-/* ——— Skip link ——— */
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: -9999px;
-}
-.skip-link:focus {
-  left: 12px;
-  top: 12px;
-  z-index: 9999;
-  background: var(--section-background);
-  color: var(--text-color);
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent);
-  text-decoration: none;
-}
 
 /* ——— Header ——— */
 .site-header {
@@ -162,7 +142,7 @@ watch(isDarkMode, applyTheme);
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 0;
+  padding: 16px;
 }
 
 /* Brand */
@@ -242,6 +222,8 @@ watch(isDarkMode, applyTheme);
   color: var(--text-color);
   border-radius: 10px;
   cursor: pointer;
+  margin-left: auto;
+  margin-right: 12px;
 }
 .nav-toggle .bar {
   position: absolute;
