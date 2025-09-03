@@ -14,10 +14,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
-  visible: boolean;
-  title: string;
-}>();
+const { visible, title } = defineProps<{ visible: boolean; title: string }>();
 
 const emit = defineEmits<{
   (e: "close"): void;

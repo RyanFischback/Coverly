@@ -22,7 +22,7 @@ import { ref } from "vue";
 import axios from "axios";
 import Modal from "./Modal.vue";
 
-const props = defineProps<{ visible: boolean }>();
+const { visible } = defineProps<{ visible: boolean }>();
 
 const emit = defineEmits<{
   (e: "close"): void;
