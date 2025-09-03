@@ -77,11 +77,6 @@ watch(isDarkMode, applyTheme);
               <router-link to="/" exact-active-class="active">Home</router-link>
             </li>
             <li>
-              <router-link to="/about" exact-active-class="active"
-                >About</router-link
-              >
-            </li>
-            <li>
               <router-link to="/cover-letter" exact-active-class="active"
                 >Cover Letter</router-link
               >

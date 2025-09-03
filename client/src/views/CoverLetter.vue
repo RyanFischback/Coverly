@@ -338,7 +338,8 @@ const updateCounts = () => {
 const autoGrow = (ta: HTMLTextAreaElement | null) => {
   if (!ta) return;
   ta.style.height = "auto";
-  ta.style.height = Math.min(ta.scrollHeight, 900) + "px"; // cap
+  ta.style.height = Math.min(ta.scrollHeight, 300) + "px"; // cap
+  ta.style.overflowY = ta.scrollHeight > 300 ? "auto" : "hidden";
 };
 
 const onTAInput = (e: Event) => {
