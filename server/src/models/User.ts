@@ -42,6 +42,7 @@ const UserSchema = new Schema<IUser>(
     resumes: { type: [ResumeSchema], default: [] },
   },
   {
+    versionKey: false,
     timestamps: true, // createdAt, updatedAt
     toJSON: { virtuals: true, versionKey: false, getters: true },
     toObject: { virtuals: true, getters: true },
